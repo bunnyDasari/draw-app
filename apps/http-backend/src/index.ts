@@ -1,17 +1,19 @@
 import express from "express"
 import jwt from "jsonwebtoken"
 import { JWT_SEC } from "@repo/backend-common/config"
-import { userSignSchema, userRoomSchema } from "@repo/common/types"
+import { userSignSchema, userRoomSchema, userSignupSchema } from "@repo/common/types"
 import { prismaClient } from "@repo/db-store/client"
+import cors from "cors"
 const app = express()
 app.use(express.json())
+app.use(cors())
 console.log(JWT_SEC)
 app.get("/", (req, res) => {
     res.json("hi there")
 })
 
 app.post("/login", async (req, res) => {
-    const { username, password, photo } = userSignSchema.parse(req.body)
+    const { username } = userSignSchema.parse(req.body)
     try {
         const userCheck = await prismaClient.user.findFirst({
             where: {
@@ -33,13 +35,12 @@ app.post("/login", async (req, res) => {
 })
 
 app.post("/signup", async (req, res) => {
-    const { username, password, photo } = userSignSchema.parse(req.body)
+    const { username, password } = userSignupSchema.parse(req.body)
     try {
         await prismaClient.user.create({
             data: {
                 username,
                 password,
-                photo
             }
         })
         res.json({ msg: "user is created" })
@@ -103,6 +104,6 @@ app.get("/chats/:roomId", async (req, res) => {
     }
 })
 
-app.listen(3002, () => {
-    console.log("server is runnig at port 3002")
+app.listen(3003, () => {
+    console.log("server is runnig at port 3003")
 })
